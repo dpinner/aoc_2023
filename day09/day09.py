@@ -1,7 +1,7 @@
 import sys
 
-def extrapolate(series, prefix):
-    stack = [series if not prefix else list(reversed(series))]
+def extrapolate(series):
+    stack = [series]
     if all((v == 0 for v in stack[-1])):
         return 0
     while any((v != 0 for v in stack[-1])):
@@ -20,7 +20,7 @@ def sum_extrapolate(filename: str, prefix: bool) -> int:
             l = line.rstrip()
             if not l:
                 continue
-            tot += extrapolate([int(v) for v in l.split()], prefix)
+            tot += extrapolate([int(v) for v in l.split()][::(-1)**prefix])
         return tot
 
 
