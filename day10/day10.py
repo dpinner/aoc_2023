@@ -88,12 +88,11 @@ def get_loop(map):
     return loop
 
 def is_inside(map, loop, i,j):
-    if (i,j) in loop or i == 0 or j == 0 or i == len(map) or j == len(map[0]):
-        return False
-    pipes_west = sorted({p for p in loop if p[0] == i and p[1] < j},key = lambda p: p[1], reverse=True)
     exit = None
     crossings = 0
-    for p in pipes_west:
+    for p in loop[i]:
+        if p[1] > j:
+            continue
         pipe = map[p[0]][p[1]]
         if exit is None:
             crossings += 1
@@ -110,16 +109,25 @@ def is_inside(map, loop, i,j):
         
     return crossings % 2 == 1 # odd number of crossings means inside
 
+def get_area(map,loop):
+    replace_S(map, loop)
+    sorted_loop = [[]]*len(map)
+    for i in range(len(map)):
+        sorted_loop[i] = sorted({p for p in loop if p[0] == i}, key = lambda p: p[1], reverse=True)
+    inside_count = 0
+    for i in range(len(map)):
+        for j in range(len(map[0])):
+            if (i,j) in loop or i == 0 or j == 0 or i == len(map) or j == len(map[0]):
+                continue
+            if is_inside(map,sorted_loop,i,j):
+                inside_count += 1
+    return inside_count
+
+
 if __name__ == "__main__":
     filename = sys.argv[1]
     with open(filename, "r") as f:
         map = f.read().splitlines()
     loop = get_loop(map)
     print(len(loop)//2)
-    replace_S(map, loop)
-    inside_count = 0
-    for i in range(len(map)):
-        for j in range(len(map[0])):
-            if is_inside(map,loop,i,j):
-                inside_count += 1
-    print(inside_count)
+    print(get_area(map,loop))
