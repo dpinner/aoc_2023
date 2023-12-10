@@ -113,7 +113,7 @@ def get_area(map,loop):
     replace_S(map, loop)
     sorted_loop = [[]]*len(map)
     for i in range(len(map)):
-        sorted_loop[i] = sorted({p for p in loop if p[0] == i}, key = lambda p: p[1], reverse=True)
+        sorted_loop[i] = sorted((p for p in loop if p[0] == i), key = lambda p: p[1], reverse=True)
     inside_count = 0
     for i in range(len(map)):
         for j in range(len(map[0])):
