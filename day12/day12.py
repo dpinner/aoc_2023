@@ -62,6 +62,7 @@ def sum_combinatorics(filename: str, folded: bool) -> int:
                 sizes *= 5
                 s = ((s+'?')*5)[:-1] # remove trailing '?'
             tot += combinatorics(s,sizes,0,0,0)
+            combinatorics.cache_clear()
     return tot
 
 
