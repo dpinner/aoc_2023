@@ -12,11 +12,10 @@ def tilt_west(pattern, reverse=False):
     rows = [None]*len(pattern)
     peek = -1 if reverse else 0
     step = -1 if reverse else 1
-    end_idx = -1 if reverse else len(pattern[0])
     for j,row in enumerate(pattern):
         rocks = deque([m.start() for m in re.finditer(r'O',row)])
         blocks = deque([m.start() for m in re.finditer(r'\#',row)])
-        new_row = [None]*len(row)
+        new_row = ['.']*len(row)
         i = len(row)-1 if reverse else 0
         while rocks:
             if (
@@ -29,16 +28,15 @@ def tilt_west(pattern, reverse=False):
                 if blocks[peek] == i:
                     _ = blocks.pop() if reverse else blocks.popleft()
                     new_row[i] = '#'
-                else:
-                    new_row[i] = '.'
                 i += step
                 continue
             _ = rocks.pop() if reverse else rocks.popleft()
             new_row[i] = 'O'
             i += step
     
-        for k in range(i,end_idx,step):
-            new_row[k] = row[k] if row[k] != 'O' else '.'
+        while blocks:
+            block = blocks.pop() if reverse else blocks.popleft()
+            new_row[block] = '#'
         rows[j] = ''.join(new_row)
 
     return rows
@@ -71,7 +69,7 @@ def spin(pattern: List[str], cycles: int) -> int:
             break
         _cache[pattern] = i
 
-    rem_cycles = (cycles - _cache[pattern] - 1) % (i - _cache[pattern])
+    rem_cycles = (cycles - _cache[pattern]-1) % (i - _cache[pattern])
     for i in range(rem_cycles):
         pattern = cycle(pattern)
     return pattern
