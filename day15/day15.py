@@ -1,6 +1,6 @@
 import sys
 from typing import List, Dict,Tuple
-from collections import deque
+from collections import OrderedDict
 
 def hash(step):
     val = 0
@@ -13,39 +13,28 @@ def hash(step):
 def sum_instructions(steps: List[str]) -> int:
     return sum(hash(step) for step in steps)
 
-def perform_step(
-        step: str, 
-        boxes: List[deque], 
-        focal_lengths: Dict[Tuple[int,str],str]
-    ) -> None:
-    remove = step[-1] == '-'
-    if remove:
+def perform_step(step: str, boxes: OrderedDict) -> None:
+    if step[-1] == '-':
         label = step[:-1]
-        f = None
+        idx = hash(label)
+        if label in boxes[idx]:
+            boxes[idx].pop(label)
     else:
         label,f = step.split('=')
-    idx = hash(label)
-    if remove and (idx,label) in focal_lengths:
-        boxes[idx].remove(label)
-        del focal_lengths[(idx,label)]
-    elif not remove:
-        if (idx,label) not in focal_lengths:
-            boxes[idx].append(label)
-        focal_lengths[(idx,label)] = f
+        idx = hash(label)
+        boxes[idx][label] = int(f)
 
 def focusing_power(steps: List[str]) -> int:
-    boxes = []
-    for _ in range(256):
-        # deque is secretly a doubly linked list
-        boxes.append(deque([]))
-    focal_lengths = {}
+    boxes = [OrderedDict() for _ in range(256)]
     for step in steps:
-        perform_step(step, boxes, focal_lengths)
+        perform_step(step, boxes)
 
     power = 0
     for i,box in enumerate(boxes):
-        for j,label in enumerate(box):
-            power += (i+1)*(j+1)*int(focal_lengths[(i,label)])
+        j = 1
+        for _,f in box.items():
+            power += (i+1)*(j)*f
+            j += 1
     return power
 
 
